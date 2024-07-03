@@ -1,0 +1,111 @@
+{% extends 'app/base.html' %}
+
+{% load static %}
+{% block content_checkout %}
+<div class="row" style='width:100%'>
+    <div class="col-lg-6">
+        <div class="box-element" id="form-wrapper">
+            <!-- Ensure the action points to the view that processes the form -->
+            <form id="form" method="POST" action="{% url 'checkout' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product_id }}">
+                <div id="user-info">
+                    <hr>
+                    <p>Thông tin người mua :</p>
+                    <hr>
+                    <div class="form-field">
+                        <input required class="form-control" type="text" name="name" placeholder="Name..">
+                    </div>
+                    <div class="form-field">
+                        <input required class="form-control" type="text" name="gender" placeholder="Gender..">
+                    </div>
+                </div>
+                
+                <div id="shipping-info">
+                    <hr>
+                    <p>Cách thức liên lạc:</p>
+                    <hr>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="address" placeholder="Address..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="email" name="email" placeholder="Email..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="phone_number" placeholder="Phone number..">
+                    </div>
+                </div>
+
+                <hr>
+                <input id="form-button" class="btn btn-success btn-block" type="submit" value="Continue">
+            </form>
+        </div>
+
+        <br>
+        <div class="box-element hidden" id="payment-info">
+            <small>Paypal Options</small>
+        </div>
+        
+    </div>
+
+    <div class="col-lg-6">
+        <div class="box-element">
+            <a class="btn btn-outline-dark" href="{% url 'cart' %}">&#x2190; Back</a>
+            <hr>
+            <h3> Sản phẩm đã chọn </h3>
+            <hr>
+            {% for item in items %}
+            <div id="item-row-{{ item.product.id }}" class="cart-row">
+                <div style="flex:2"><img class="row-image" src="{{ item.product.IMAGEURL }}"></div>
+                <div style="flex:2"><p>{{ item.product.name }}</p></div>
+                <div style="flex:1"><p>{{ item.product.price }} VND</p></div>
+                <div style="flex:1"><p id="quantity-{{ item.product.id }}">{{ item.quantity }}</p></div>
+                <div style="flex:1"><p>{{ item.total }} VND</p></div>
+            </div>
+            {% endfor %}
+            <h5> Items: {{ item_count }}</h5>
+            <h5> Total: {{ total }} VND</h5>
+        </div>
+    </div>
+</div>
+</br></br></br></br></br></br></br></br></br>
+<!-- Success Modal -->
+<div class="modal" tabindex="-1" role="dialog" id="successModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thành công!</h5>
+            </div>
+            <div class="modal-body">
+                <p>Đơn hàng của bạn đã được gửi thành công.</p>
+                <p>Bạn sẽ được chuyển về trang chủ trong <span id="countdown">5</span> giây...</p>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+	document.addEventListener('DOMContentLoaded', function() {
+		// Check if the modal should be displayed
+		{% if display_modal %}
+		var myModal = new bootstrap.Modal(document.getElementById('successModal'), {
+			keyboard: false
+		});
+		myModal.show();
+	
+		// Countdown and redirect
+		var counter = 5;
+		var interval = setInterval(function() {
+			counter--;
+			if (counter >= 0) {
+				document.getElementById("countdown").textContent = counter;
+			}
+			if (counter === 0) {
+				clearInterval(interval);
+				window.location.href = '{% url "home" %}';
+			}
+		}, 1000);
+		{% endif %}
+	});
+</script>
+
+{% endblock content_checkout %}
